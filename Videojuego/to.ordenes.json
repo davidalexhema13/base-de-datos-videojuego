@@ -1,0 +1,22 @@
+[{
+  "_id": {
+    "$oid": "67d1f0602fbe37213f3d4448"
+  },
+  "usuario_id": {
+    "$oid": "67d1f0602fbe37213f3d4446"
+  },
+  "juegos": [
+    {
+      "juego_id": {
+        "$oid": "67d1f0602fbe37213f3d4447"
+      },
+      "cantidad": 1,
+      "precio": 29.99
+    }
+  ],
+  "total": 29.99,
+  "estado": "pendiente",
+  "fecha": {
+    "$date": "2025-03-12T12:00:00.000Z"
+  }
+}]

@@ -1,0 +1,50 @@
+[{
+  "_id": {
+    "$oid": "67d1efb12fbe37213f3d4444"
+  },
+  "titulo": "GTA V",
+  "descripcion": "Juego de mundo abierto con muchas misiones.",
+  "precio": 29.99,
+  "stock": 50,
+  "plataformas": [
+    "PC",
+    "PS5",
+    "Xbox"
+  ],
+  "generos": [
+    "Acción",
+    "Aventura"
+  ],
+  "publicador": "Rockstar Games",
+  "fecha_lanzamiento": {
+    "$date": "2013-09-17T00:00:00.000Z"
+  },
+  "imagenes": [
+    "gta5.jpg"
+  ]
+},
+{
+  "_id": {
+    "$oid": "67d1f0602fbe37213f3d4447"
+  },
+  "titulo": "GTA V",
+  "descripcion": "Juego de mundo abierto con muchas misiones.",
+  "precio": 29.99,
+  "stock": 50,
+  "plataformas": [
+    "PC",
+    "PS5",
+    "Xbox"
+  ],
+  "generos": [
+    "Acción",
+    "Aventura"
+  ],
+  "publicador": "Rockstar Games",
+  "fecha_lanzamiento": {
+    "$date": "2013-09-17T00:00:00.000Z"
+  },
+  "imagenes": [
+    "gta5.jpg"
+  ]
+}]
