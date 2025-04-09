@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Tienda de Juegos</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            min-height: 100vh;
+        }
+        
+        h2 {
+            color: #007BFF;
+            margin-top: 30px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #007BFF;
+            font-weight: 600;
+        }
+        
+        form {
+            margin-bottom: 20px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        form:hover {
+            transform: translateY(-5px);
+        }
+        
+        input, select, button {
+            margin: 8px 5px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        select {
+            min-width: 200px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        th, td {
+            padding: 14px 20px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #007BFF;
+            color: white;
+            position: sticky;
+            top: 0;
+            font-size: 16px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        tr:hover {
+            background-color: #dde7f1;
+            transition: background-color 0.3s;
+        }
+        
+        button {
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 18px;
+            font-size: 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        button.delete {
+            background-color: #dc3545;
+        }
+        
+        button.delete:hover {
+            background-color: #c82333;
+        }
+        
+        button.edit {
+            background-color: #17a2b8;
+            margin-right: 5px;
+        }
+        
+        button.edit:hover {
+            background-color: #138496;
+        }
+        
+        button.submit {
+            background-color: #28a745;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        button.submit:hover {
+            background-color: #218838;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .success {
+            color: #28a745;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .section-container {
+            margin-bottom: 50px;
+        }
+        
+        .order-detail {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .order-detail h3 {
+            margin-top: 0;
+            color: #495057;
+            font-size: 20px;
+        }
+        
+        .order-detail p {
+            margin: 5px 0;
+        }
+        </style>
+        
+</head>
+<body>
+
+    <div class="section-container">
+        <h2>Gestión de Usuarios</h2>
+        <form id="userForm">
+            <input type="text" id="nombre" placeholder="Nombre" required>
+            <input type="email" id="correo" placeholder="Correo electrónico" required>
+            <input type="password" id="contraseña" placeholder="Contraseña" required>
+            <button type="submit" class="submit">Agregar Usuario</button>
+            <div id="userError" class="error"></div>
+            <div id="userSuccess" class="success"></div>
+        </form>
+        <table id="usuariosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="section-container">
+        <h2>Gestión de Juegos</h2>
+        <form id="gameForm">
+            <input type="text" id="titulo" placeholder="Título del juego" required>
+            <input type="number" id="precio" placeholder="Precio" min="0" step="0.01" required>
+            <button type="submit" class="submit">Agregar Juego</button>
+            <div id="gameError" class="error"></div>
+            <div id="gameSuccess" class="success"></div>
+        </form>
+        <table id="juegosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="section-container">
+        <h2>Gestión de Órdenes</h2>
+        
+        <!-- Detalle de orden seleccionada -->
+        <div id="orderDetailContainer" class="order-detail" style="display: none;">
+            <h3>Detalle de la Orden</h3>
+            <p><strong>Usuario:</strong> <span id="detailUser"></span></p>
+            <p><strong>Total:</strong> $<span id="detailTotal"></span></p>
+            <p><strong>Estado:</strong> <span id="detailStatus"></span></p>
+            <p><strong>Fecha:</strong> <span id="detailDate"></span></p>
+            <button onclick="hideOrderDetail()" class="edit">Volver a la lista</button>
+        </div>
+        
+        <form id="orderForm">
+            <select id="usuario" required>
+                <option value="">Seleccione usuario</option>
+            </select>
+            <input type="number" id="total" placeholder="Total" min="0" step="0.01" required>
+            <select id="estado" required>
+                <option value="">Seleccione estado</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="completado">Completado</option>
+                <option value="cancelado">Cancelado</option>
+                <option value="otro">Otro</option>
+            </select>
+            <input type="datetime-local" id="fecha" required>
+            <button type="submit" class="submit">Agregar Orden</button>
+            <div id="orderError" class="error"></div>
+            <div id="orderSuccess" class="success"></div>
+        </form>
+        
+        <!-- TABLA DE ÓRDENES COMPLETA -->
+        <table id="ordenesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        async function fetchOrdenes() {
+            try {
+                const res = await fetch('/api/ordenes');
+                if (!res.ok) throw new Error('Error al obtener órdenes');
+    
+                ordenes = await res.json();
+                const tbody = document.querySelector('#ordenesTable tbody');
+                if (!tbody) throw new Error('Tabla de órdenes no encontrada');
+    
+                tbody.innerHTML = '';
+    
+                ordenes.forEach(orden => {
+                    const user = usuarios.find(u => u.id == orden.usuario);
+                    const row = document.createElement('tr');
+    
+                    row.innerHTML = `
+                        <td>${orden.id}</td>
+                        <td>${user ? user.nombre : `Usuario #${orden.usuario}`} ${user ? '('+user.correo+')' : ''}</td>
+                        <td>$${parseFloat(orden.total).toFixed(2)}</td>
+                        <td>${orden.estado}</td>
+                        <td>${new Date(orden.fecha).toLocaleString()}</td>
+                        <td>
+                            <button class="btn-ver" onclick="showOrderDetail(${orden.id})">Ver</button>
+                            <button class="btn-editar" onclick="editOrden(${orden.id})">Editar</button>
+                            <button class="btn-eliminar" onclick="deleteOrden(${orden.id})">Eliminar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error('Error al cargar órdenes:', err);
+                const orderError = document.getElementById('orderError');
+                if (orderError) orderError.textContent = 'Error al cargar órdenes';
+            }
+        }
+    
+        async function deleteUsuario(id) {
+            if (confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
+                try {
+                    const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+                    if (!res.ok) throw new Error((await res.json()).error || 'Error al eliminar usuario');
+    
+                    await fetchUsuarios();
+                    await populateUserDropdown();
+                    showMessage('userSuccess', 'Usuario eliminado correctamente');
+                } catch (err) {
+                    showMessage('userError', err.message);
+                }
+            }
+        }
+    
+        async function deleteJuego(id) {
+            if (confirm('¿Estás seguro de eliminar este juego? Esta acción no se puede deshacer.')) {
+                try {
+                    const res = await fetch(`/api/juegos/${id}`, { method: 'DELETE' });
+                    if (!res.ok) throw new Error((await res.json()).error || 'Error al eliminar juego');
+    
+                    await fetchJuegos();
+                    showMessage('gameSuccess', 'Juego eliminado correctamente');
+                } catch (err) {
+                    showMessage('gameError', err.message);
+                }
+            }
+        }
+    
+        async function deleteOrden(id) {
+            if (confirm('¿Estás seguro de eliminar esta orden? Esta acción no se puede deshacer.')) {
+                try {
+                    const res = await fetch(`/api/ordenes/${id}`, { method: 'DELETE' });
+                    if (!res.ok) throw new Error((await res.json()).error || 'Error al eliminar orden');
+    
+                    await fetchOrdenes();
+                    showMessage('orderSuccess', 'Orden eliminada correctamente');
+                } catch (err) {
+                    showMessage('orderError', err.message);
+                }
+            }
+        }
+    
+        async function editUsuario(id) {
+            try {
+                const res = await fetch(`/api/usuarios/${id}`);
+                if (!res.ok) throw new Error('Error al obtener usuario');
+    
+                const user = await res.json();
+                const nombre = prompt("Nuevo nombre:", user.nombre);
+                if (nombre === null) return;
+    
+                const correo = prompt("Nuevo correo:", user.correo);
+                if (correo === null) return;
+    
+                if (!nombre.trim() || !correo.trim()) throw new Error('Nombre y correo son requeridos');
+    
+                const response = await fetch(`/api/usuarios/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, correo })
+                });
+    
+                if (!response.ok) throw new Error((await response.json()).error || 'Error al actualizar usuario');
+    
+                await fetchUsuarios();
+                await populateUserDropdown();
+                showMessage('userSuccess', 'Usuario actualizado correctamente');
+            } catch (err) {
+                showMessage('userError', err.message);
+            }
+        }
+    
+        async function editJuego(id) {
+            try {
+                const res = await fetch(`/api/juegos/${id}`);
+                if (!res.ok) throw new Error('Error al obtener juego');
+    
+                const juego = await res.json();
+                const titulo = prompt("Nuevo título:", juego.titulo);
+                if (titulo === null) return;
+    
+                const precio = prompt("Nuevo precio:", juego.precio);
+                if (precio === null) return;
+    
+                if (!titulo.trim() || isNaN(precio)) throw new Error('Título válido y precio numérico son requeridos');
+    
+                const response = await fetch(`/api/juegos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ titulo, precio: parseFloat(precio) })
+                });
+    
+                if (!response.ok) throw new Error((await response.json()).error || 'Error al actualizar juego');
+    
+                await fetchJuegos();
+                showMessage('gameSuccess', 'Juego actualizado correctamente');
+            } catch (err) {
+                showMessage('gameError', err.message);
+            }
+        }
+    
+        async function editOrden(id) {
+            try {
+                const res = await fetch(`/api/ordenes/${id}`);
+                if (!res.ok) throw new Error('Error al obtener orden');
+    
+                const orden = await res.json();
+                const estado = prompt("Nuevo estado:", orden.estado);
+                if (estado === null) return;
+    
+                if (!estado.trim()) throw new Error('El estado es requerido');
+    
+                const response = await fetch(`/api/ordenes/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado })
+                });
+    
+                if (!response.ok) throw new Error((await response.json()).error || 'Error al actualizar orden');
+    
+                await fetchOrdenes();
+                showMessage('orderSuccess', 'Orden actualizada correctamente');
+            } catch (err) {
+                showMessage('orderError', err.message);
+            }
+        }
+    
+        function showMessage(elementId, message) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.textContent = message;
+                setTimeout(() => { el.textContent = ''; }, 3000);
+            }
+        }
+    </script>
+    
+
+    <script>
+        // Datos de ejemplo (deberían ser reemplazados por llamadas a tu API real)
+        let usuarios = [];
+        let juegos = [];
+        let ordenes = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([
+                fetchUsuarios(),
+                fetchJuegos(),
+                fetchOrdenes()
+            ]);
+            populateUserDropdown();
+        });
+
+        // Funciones para poblar dropdowns
+        async function populateUserDropdown() {
+            const select = document.getElementById('usuario');
+            try {
+                const res = await fetch('/api/usuarios');
+                if (!res.ok) throw new Error('Error al cargar usuarios');
+                
+                usuarios = await res.json();
+                select.innerHTML = '<option value="">Seleccione usuario</option>';
+                
+                usuarios.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = `${user.nombre} (${user.correo})`;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Error al cargar usuarios:', err);
+                document.getElementById('orderError').textContent = 'Error al cargar usuarios';
+            }
+        }
+
+        // Funciones para mostrar/ocultar detalles de orden
+        function showOrderDetail(orderId) {
+            const order = ordenes.find(o => o.id == orderId);
+            if (!order) return;
+
+            const user = usuarios.find(u => u.id == order.usuario);
+            
+            document.getElementById('detailUser').textContent = user 
+                ? `${user.nombre} (${user.correo})` 
+                : `Usuario #${order.usuario}`;
+            
+            document.getElementById('detailTotal').textContent = order.total.toFixed(2);
+            document.getElementById('detailStatus').textContent = order.estado;
+            document.getElementById('detailDate').textContent = new Date(order.fecha).toLocaleString();
+            
+            document.getElementById('orderDetailContainer').style.display = 'block';
+            document.getElementById('orderForm').style.display = 'none';
+            document.getElementById('ordenesTable').style.display = 'none';
+        }
+
+        function hideOrderDetail() {
+            document.getElementById('orderDetailContainer').style.display = 'none';
+            document.getElementById('orderForm').style.display = 'block';
+            document.getElementById('ordenesTable').style.display = 'table';
+        }
+
+        // Funciones para agregar
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorElement = document.getElementById('userError');
+            const successElement = document.getElementById('userSuccess');
+            errorElement.textContent = '';
+            successElement.textContent = '';
+            
+            try {
+                const nombre = document.getElementById('nombre').value.trim();
+                const correo = document.getElementById('correo').value.trim();
+                const contraseña = document.getElementById('contraseña').value;
+                
+                if (!nombre || !correo || !contraseña) {
+                    throw new Error('Todos los campos son requeridos');
+                }
+                
+                const response = await fetch('/api/usuarios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, correo, contraseña })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Error al agregar usuario');
+                }
+                
+                document.getElementById('userForm').reset();
+                successElement.textContent = 'Usuario agregado correctamente';
+                await fetchUsuarios();
+                await populateUserDropdown();
+                
+                setTimeout(() => {
+                    successElement.textContent = '';
+                }, 3000);
+            } catch (err) {
+                errorElement.textContent = err.message;
+            }
+        });
+
+        document.getElementById('gameForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorElement = document.getElementById('gameError');
+            const successElement = document.getElementById('gameSuccess');
+            errorElement.textContent = '';
+            successElement.textContent = '';
+            
+            try {
+                const titulo = document.getElementById('titulo').value.trim();
+                const precio = parseFloat(document.getElementById('precio').value);
+                
+                if (!titulo || isNaN(precio) || precio < 0) {
+                    throw new Error('Datos del juego inválidos');
+                }
+                
+                const response = await fetch('/api/juegos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ titulo, precio })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Error al agregar juego');
+                }
+                
+                document.getElementById('gameForm').reset();
+                successElement.textContent = 'Juego agregado correctamente';
+                await fetchJuegos();
+                
+                setTimeout(() => {
+                    successElement.textContent = '';
+                }, 3000);
+            } catch (err) {
+                errorElement.textContent = err.message;
+            }
+        });
+
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorElement = document.getElementById('orderError');
+            const successElement = document.getElementById('orderSuccess');
+            errorElement.textContent = '';
+            successElement.textContent = '';
+            
+            try {
+                const usuario = document.getElementById('usuario').value;
+                const total = parseFloat(document.getElementById('total').value);
+                const estado = document.getElementById('estado').value;
+                const fecha = document.getElementById('fecha').value;
+                
+                if (!usuario || isNaN(total) || total <= 0 || !estado || !fecha) {
+                    throw new Error('Todos los campos son requeridos');
+                }
+                
+                const response = await fetch('/api/ordenes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, total, estado, fecha })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Error al agregar orden');
+                }
+                
+                document.getElementById('orderForm').reset();
+                successElement.textContent = 'Orden agregada correctamente';
+                await fetchOrdenes();
+                
+                setTimeout(() => {
+                    successElement.textContent = '';
+                }, 3000);
+            } catch (err) {
+                errorElement.textContent = err.message;
+            }
+        });
+
+        // Funciones para obtener datos
+        async function fetchUsuarios() {
+            try {
+                const res = await fetch('/api/usuarios');
+                if (!res.ok) throw new Error('Error al obtener usuarios');
+                
+                usuarios = await res.json();
+                const tbody = document.querySelector('#usuariosTable tbody');
+                tbody.innerHTML = '';
+                
+                usuarios.forEach(user => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.nombre}</td>
+                        <td>${user.correo}</td>
+                        <td>
+                            <button class="edit" onclick="editUsuario(${user.id})">Editar</button>
+                            <button class="delete" onclick="deleteUsuario(${user.id})">Eliminar</button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error('Error al cargar usuarios:', err);
+                document.getElementById('userError').textContent = 'Error al cargar usuarios';
+            }
+        }
+
+        async function fetchJuegos() {
+    try {
+        const res = await fetch('/api/juegos');
+        if (!res.ok) throw new Error('Error al obtener juegos');
+        
+        juegos = await res.json();
+        
+        const tbody = document.querySelector('#juegosTable tbody');
+        tbody.innerHTML = '';
+        
+        if (juegos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay juegos registrados</td></tr>';
+            return;
+        }
+        
+        juegos.forEach(juego => {
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td>${juego.id ?? 'N/A'}</td>
+                <td>${juego.titulo ?? 'Sin título'}</td>
+                <td>$${parseFloat(juego.precio ?? 0).toFixed(2)}</td>
+                <td>
+                    <button class="edit" onclick="editJuego(${juego.id})">Editar</button>
+                    <button class="delete" onclick="deleteJuego(${juego.id})">Eliminar</button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    } catch (err) {
+        console.error('Error al cargar juegos:', err);
+        const gameError = document.getElementById('gameError');
+        if (gameError) gameError.textContent = 'Error al cargar juegos';
+        
+        const tbody = document.querySelector('#juegosTable tbody');
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error al cargar juegos</td></tr>';
+    }
+}
+
+async function fetchOrdenes() {
+    try {
+        const res = await fetch('/api/ordenes');
+        if (!res.ok) throw new Error('Error al obtener órdenes');
+        
+        ordenes = await res.json();
+        
+        const tbody = document.querySelector('#ordenesTable tbody');
+        tbody.innerHTML = '';
+        
+        if (ordenes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No hay órdenes registradas</td></tr>';
+            return;
+        }
+        
+        ordenes.forEach(orden => {
+            const user = usuarios.find(u => u.id == orden.usuario) || { nombre: 'Usuario desconocido', correo: '' };
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td>${orden.id ?? 'N/A'}</td>
+                <td>${user.nombre} (${user.correo})</td>
+                <td>$${parseFloat(orden.total ?? 0).toFixed(2)}</td>
+                <td>${orden.estado ?? 'Sin estado'}</td>
+                <td>${orden.fecha ? new Date(orden.fecha).toLocaleString() : 'Sin fecha'}</td>
+                <td>
+                    <button class="edit" onclick="showOrderDetail(${orden.id})">Ver</button>
+                    <button class="edit" onclick="editOrden(${orden.id})">Editar</button>
+                    <button class="delete" onclick="deleteOrden(${orden.id})">Eliminar</button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    } catch (err) {
+        console.error('Error al cargar órdenes:', err);
+        const orderError = document.getElementById('orderError');
+        if (orderError) orderError.textContent = 'Error al cargar órdenes';
+        
+        const tbody = document.querySelector('#ordenesTable tbody');
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error al cargar órdenes</td></tr>';
+    }
+}
+
+        // Funciones para eliminar
+        async function deleteUsuario(id) {
+            if (confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
+                try {
+                    const response = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Error al eliminar usuario');
+                    }
+                    
+                    await fetchUsuarios();
+                    await populateUserDropdown();
+                    document.getElementById('userSuccess').textContent = 'Usuario eliminado correctamente';
+                    
+                    setTimeout(() => {
+                        document.getElementById('userSuccess').textContent = '';
+                    }, 3000);
+                } catch (err) {
+                    document.getElementById('userError').textContent = err.message;
+                }
+            }
+        }
+
+        async function deleteJuego(id) {
+            if (confirm('¿Estás seguro de eliminar este juego? Esta acción no se puede deshacer.')) {
+                try {
+                    const response = await fetch(`/api/juegos/${id}`, { method: 'DELETE' });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Error al eliminar juego');
+                    }
+                    
+                    await fetchJuegos();
+                    document.getElementById('gameSuccess').textContent = 'Juego eliminado correctamente';
+                    
+                    setTimeout(() => {
+                        document.getElementById('gameSuccess').textContent = '';
+                    }, 3000);
+                } catch (err) {
+                    document.getElementById('gameError').textContent = err.message;
+                }
+            }
+        }
+
+        async function deleteOrden(id) {
+            if (confirm('¿Estás seguro de eliminar esta orden? Esta acción no se puede deshacer.')) {
+                try {
+                    const response = await fetch(`/api/ordenes/${id}`, { method: 'DELETE' });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Error al eliminar orden');
+                    }
+                    
+                    await fetchOrdenes();
+                    document.getElementById('orderSuccess').textContent = 'Orden eliminada correctamente';
+                    
+                    setTimeout(() => {
+                        document.getElementById('orderSuccess').textContent = '';
+                    }, 3000);
+                } catch (err) {
+                    document.getElementById('orderError').textContent = err.message;
+                }
+            }
+        }
+
+        // Funciones para editar
+        async function editUsuario(id) {
+            try {
+                const res = await fetch(`/api/usuarios/${id}`);
+                if (!res.ok) throw new Error('Error al obtener usuario');
+                
+                const user = await res.json();
+                const nombre = prompt("Nuevo nombre:", user.nombre);
+                if (nombre === null) return; // El usuario canceló
+                
+                const correo = prompt("Nuevo correo:", user.correo);
+                if (correo === null) return;
+                
+                if (!nombre || !correo) {
+                    throw new Error('Nombre y correo son requeridos');
+                }
+                
+                const response = await fetch(`/api/usuarios/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, correo })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Error al actualizar usuario');
+                }
+                
+                await fetchUsuarios();
+                await populateUserDropdown();
+                document.getElementById('userSuccess').textContent = 'Usuario actualizado correctamente';
+                
+                setTimeout(() => {
+                    document.getElementById('userSuccess').textContent = '';
+                }, 3000);
+            } catch (err) {
+                document.getElementById('userError').textContent = err.message;
+            }
+        }
+
+        async function editJuego(id) {
+            try {
+                const res = await fetch(`/api/juegos/${id}`);
+                if (!res.ok) throw new Error('Error al obtener juego');
+                
+                const juego = await res.json();
+                const titulo = prompt("Nuevo título:", juego.titulo);
+                if (titulo === null) return;
+                
+                const precio = prompt("Nuevo precio:", juego.precio);
+                if (precio === null) return;
+                
+                if (!titulo || isNaN(parseFloat(precio))) {
+                    throw new Error('Título y precio válido son requeridos');
+                }
+                
+                const response = await fetch(`/api/juegos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ titulo, precio: parseFloat(precio) })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Error al actualizar juego');
+                }
+                
+                await fetchJuegos();
+                document.getElementById('gameSuccess').textContent = 'Juego actualizado correctamente';
+                
+                setTimeout(() => {
+                    document.getElementById('gameSuccess').textContent = '';
+                }, 3000);
+            } catch (err) {
+                document.getElementById('gameError').textContent = err.message;
+            }
+        }
+
+        async function editOrden(id) {
+            try {
+                const res = await fetch(`/api/ordenes/${id}`);
+                if (!res.ok) throw new Error('Error al obtener orden');
+                
+                const orden = await res.json();
+                const estado = prompt("Nuevo estado:", orden.estado);
+                
+                if (estado === null) return;
+                
+                if (!estado) {
+                    throw new Error('El estado es requerido');
+                }
+                
+                const response = await fetch(`/api/ordenes/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Error al actualizar orden');
+                }
+                
+                await fetchOrdenes();
+                document.getElementById('orderSuccess').textContent = 'Orden actualizada correctamente';
+                
+                setTimeout(() => {
+                    document.getElementById('orderSuccess').textContent = '';
+                }, 3000);
+            } catch (err) {
+                document.getElementById('orderError').textContent = err.message;
+            }
+        }
+    </script>
+
+
+
+</body>
+</html> 
